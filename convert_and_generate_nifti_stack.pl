@@ -20,9 +20,7 @@ $SCAN_TAG = "AXIAL T1 PRE GD";
 
 
 my $DICOM_CACHE = "/IMAGING_SCRATCH/TCGA_DICOM_CACHE/TCGA_DATA/RAW_DICOMS/";
-$GET_ALL_SCAN_INFO = "/REST/experiments?columns=xnat:mrSessionData/ID,xnat:imageScanData/type,xnat:imageScanData/ID,ID,label,subject_ID,subject_label&format=csv";
 $IMAGE_ARCHIVE_PATH = "/IMAGING_SCRATCH/TCGA_DICOM_CACHE/TCGA_DATA/NIFTI_FILES/RAW_NIFTI_FILES";
-
 
 ### for some stupid reason... I am unable to use the xnat rest client to get this file... so I am just going to pass it as a parameter
 ### csv_input_file.txt 
@@ -30,7 +28,7 @@ $IMAGE_ARCHIVE_PATH = "/IMAGING_SCRATCH/TCGA_DICOM_CACHE/TCGA_DATA/NIFTI_FILES/R
 
 #print $FULL_SYNTAX. "\n";
 
-$statement = " curl -u nbia:nbia 'http://xnat.cci.psy.emory.edu:8080/xnat/REST/experiments?columns=xnat:mrSessionData/ID,xnat:imageScanData/type,xnat:imageScanData/ID,ID,label,subject_ID,subject_label&format=csv'";
+$statement = " curl -u nbia:nbia 'http://xnat.cci.psy.emory.edu:8080/xnat/REST/experiments?columns=xnat:mrSessionData/ID,xnat:imageScanData/type,xnat:imageScanData/ID,ID,label,subject_ID,subject_label,xnat:imageScanData/quality&format=csv'";
 
 
 
@@ -46,12 +44,13 @@ $csv->parse($FULL_SUBJECT_EXPERIMENT_LIST_INFO[$x]);
 my @columns = $csv->fields();
 #print "@columns\n";
 
+
 ### first make and see if this it he right project
-if( $columns[6] eq $SCAN_TAG)
+if( $columns[6] eq $SCAN_TAG && $columns[8] eq "usable")
 	{
 print "Found $columns[6] for $columns[2] which is scan $columns[7]\n";
 #### NOW I AM GOING TO CONVERT IT TO NIFTI IF IT IS NOT ALREADY DONE....
-check_for_or_make_nifti_images($columns[8],$columns[2],$columns[7],$SCAN_TAG);
+check_for_or_make_nifti_images($columns[9],$columns[2],$columns[7],$SCAN_TAG);
 	}
 
 
